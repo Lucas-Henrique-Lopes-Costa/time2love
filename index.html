@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quase lá! | Contador de Amor</title>
+    <style>
+        :root {
+            --primary-color: #ff3366;
+            --background-color: #0a0f1c;
+            --text-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-container, .display-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preview-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .preview-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .heart {
+            position: fixed;
+            pointer-events: none;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .countdown {
+            font-size: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 4rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -2rem;
+            height: 2rem;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-color) 50%, transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timeline-item img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            cursor: pointer;
+            margin-top: 2rem;
+        }
+
+        .media-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+
+        .media-container iframe {
+            width: 100%;
+            border-radius: 0.5rem;
+            margin: 0 auto;
+            display: block;
+        }
+
+        #autoHearts {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-item {
+                flex-direction: column;
+            }
+            
+            .timeline-item img {
+                width: 100%;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Page -->
+        <div id="formPage" class="form-container">
+            <h1>Quase lá!</h1>
+            <form id="loveForm">
+                <div class="input-group">
+                    <label>Nome do casal:</label>
+                    <input type="text" id="coupleName" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Início do relacionamento:</label>
+                    <input type="date" id="startDate" required>
+                    <input type="time" id="startTime" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Mensagem especial:</label>
+                    <textarea id="message" rows="4" required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Link do YouTube ou Spotify (opcional):</label>
+                    <input type="url" id="mediaUrl" placeholder="Cole o link do YouTube ou Spotify aqui">
+                </div>
+
+                <div class="input-group">
+                    <label>Fotos do casal (Máximo 3):</label>
+                    <input type="file" id="photos" multiple accept="image/*" max="3">
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+
+                <button type="submit">Criar Contador</button>
+            </form>
+        </div>
+
+        <!-- Display Page -->
+        <div id="displayPage" class="display-container" style="display: none;">
+            <h1 id="displayCoupleName"></h1>
+            <div class="countdown" id="countdown"></div>
+            <div id="mediaContainer" class="media-container" style="display: none;"></div>
+            <div class="timeline" id="timeline"></div>
+            <div class="message" id="specialMessage"></div>
+        </div>
+    </div>
+
+    <div id="autoHearts"></div>
+
+    <script>
+        // Form handling
+        const form = document.getElementById('loveForm');
+        const formPage = document.getElementById('formPage');
+        const displayPage = document.getElementById('displayPage');
+
+        // Image preview handling
+        const photoInput = document.getElementById('photos');
+        const imagePreview = document.getElementById('imagePreview');
+        let selectedFiles = [];
+
+        photoInput.addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files).slice(0, 3);
+            imagePreview.innerHTML = '';
+            
+            selectedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'preview-card';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <input type="date" placeholder="Data da foto">
+                    `;
+                    imagePreview.appendChild(preview);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function embedMedia(url) {
+            if (!url) return '';
+            
+            let embedHtml = '';
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                const videoId = url.includes('youtube.com') ? 
+                    url.split('v=')[1].split('&')[0] : 
+                    url.split('youtu.be/')[1];
+                embedHtml = `<iframe width="560" height="315" 
+                    src="https://www.youtube.com/embed/${videoId}" 
+                    frameborder="0" allowfullscreen></iframe>`;
+            } else if (url.includes('spotify.com')) {
+                const spotifyId = url.split('/track/')[1].split('?')[0];
+                embedHtml = `<iframe src="https://open.spotify.com/embed/track/${spotifyId}" 
+                    width="300" height="380" frameborder="0" allowtransparency="true" 
+                    allow="encrypted-media"></iframe>`;
+            }
+            return embedHtml;
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                coupleName: document.getElementById('coupleName').value,
+                startDate: document.getElementById('startDate').value,
+                startTime: document.getElementById('startTime').value,
+                message: document.getElementById('message').value,
+                mediaUrl: document.getElementById('mediaUrl').value,
+                photos: selectedFiles
+            };
+
+            showDisplayPage(formData);
+        });
+
+        function showDisplayPage(data) {
+            formPage.style.display = 'none';
+            displayPage.style.display = 'block';
+
+            document.getElementById('displayCoupleName').textContent = data.coupleName;
+            document.getElementById('specialMessage').textContent = data.message;
+            
+            // Handle media embed
+            const mediaContainer = document.getElementById('mediaContainer');
+            if (data.mediaUrl) {
+                mediaContainer.style.display = 'block';
+                mediaContainer.innerHTML = embedMedia(data.mediaUrl);
+            }
+
+            // Initialize countdown
+            const startDateTime = new Date(`${data.startDate}T${data.startTime}`);
+            updateCountdown(startDateTime);
+            setInterval(() => updateCountdown(startDateTime), 1000);
+
+            // Create timeline
+            const timeline = document.getElementById('timeline');
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const item = document.createElement('div');
+                    item.className = 'timeline-item';
+                    item.innerHTML = `
+                        <img src="${e.target.result}" alt="Memory ${index + 1}">
+                        <div class="timeline-content">
+                            <h3>Momento especial ${index + 1}</h3>
+                            <p>${new Date(document.querySelectorAll('.preview-card input')[index].value).toLocaleDateString()}</p>
+                        </div>
+                    `;
+                    timeline.appendChild(item);
+                }
+                reader.readAsDataURL(file);
+            });
+
+            // Add heart animation on message click
+            const messageElement = document.getElementById('specialMessage');
+            messageElement.addEventListener('click', createHeart);
+
+            // Start auto hearts
+            setInterval(createAutoHeart, 2000);
+        }
+
+        function updateCountdown(startDate) {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+            const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown').innerHTML = `
+                ${years} anos, ${months} meses, ${days} dias<br>
+                ${hours} horas, ${minutes} minutos e ${seconds} segundos
+            `;
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'heart';
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        function createAutoHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'heart';
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            document.getElementById('autoHearts').appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        // Trigger hearts on scroll to bottom
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                createAutoHeart();
+            }
+        });
+    </script>
+</body>
+</html>
